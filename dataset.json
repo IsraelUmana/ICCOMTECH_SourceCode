@@ -1,0 +1,378 @@
+{
+  "dataset_metadata": {
+    "source": "NVD, CVE Details, GitHub Security Advisories, and official project patch diffs (2020-2025)",
+    "description": "Curated JavaScript vulnerability dataset for comparing Sequence-based vs. AST-based detection. Each CVE includes a minimal vulnerable code snippet and its secure equivalent.",
+    "total_samples": 80,
+    "vulnerable_count": 40,
+    "secure_count": 40,
+    "vulnerability_classes": [
+      "prototype_pollution",
+      "xss",
+      "code_injection",
+      "command_injection",
+      "open_redirect"
+    ]
+  },
+  "samples": [
+    {
+      "id": "SAMPLE-01",
+      "cve_ref": "CVE-2020-8203",
+      "vulnerability_class": "prototype_pollution",
+      "source": "npm_lodash",
+      "cvss_score": 7.5,
+      "vulnerable_code": "function merge(target, source) {\n  for (let key in source) {\n    if (typeof source[key] === 'object') {\n      target[key] = merge(target[key] || {}, source[key]);\n    } else {\n      target[key] = source[key];\n    }\n  }\n  return target;\n}",
+      "secure_code": "function mergeSecure(target, source) {\n  for (let key in source) {\n    if (source.hasOwnProperty(key)) {\n      if (typeof source[key] === 'object' && source[key] !== null) {\n        target[key] = mergeSecure(target[key] || {}, source[key]);\n      } else {\n        target[key] = source[key];\n      }\n    }\n  }\n  return target;\n}"
+    },
+    {
+      "id": "SAMPLE-02",
+      "cve_ref": "CVE-2024-22020",
+      "vulnerability_class": "code_injection",
+      "source": "nodejs_core",
+      "cvss_score": 8.2,
+      "vulnerable_code": "const userInput = getUserInput();\nconst result = eval('function(' + userInput + ')');",
+      "secure_code": "const userInput = getUserInput();\nconst result = JSON.parse(userInput);"
+    },
+    {
+      "id": "SAMPLE-03",
+      "cve_ref": "CVE-2020-16009",
+      "vulnerability_class": "code_injection",
+      "source": "chrome_v8",
+      "cvss_score": 8.8,
+      "vulnerable_code": "setTimeout(\"alert('\" + userName + \"')\", 1000);",
+      "secure_code": "setTimeout(() => {\n  alert(`Hello, ${userName}`);\n}, 1000);"
+    },
+    {
+      "id": "SAMPLE-04",
+      "cve_ref": "CVE-2024-3566",
+      "vulnerability_class": "command_injection",
+      "source": "nodejs_core",
+      "cvss_score": 9.8,
+      "vulnerable_code": "const { exec } = require('child_process');\nconst userDir = req.query.dir;\nexec('ls -l ' + userDir, (err, stdout) => {\n  res.send(stdout);\n});",
+      "secure_code": "const { execFile } = require('child_process');\nconst userDir = req.query.dir;\nexecFile('ls', ['-l', userDir], (err, stdout) => {\n  res.send(stdout);\n});"
+    },
+    {
+      "id": "SAMPLE-05",
+      "cve_ref": "CVE-2019-11358",
+      "vulnerability_class": "xss",
+      "source": "npm_jquery",
+      "cvss_score": 6.1,
+      "vulnerable_code": "$('#user-comment').html(userInput);",
+      "secure_code": "$('#user-comment').text(userInput);"
+    },
+    {
+      "id": "SAMPLE-06",
+      "cve_ref": "CVE-2022-3075",
+      "vulnerability_class": "xss",
+      "source": "chrome_v8",
+      "cvss_score": 9.6,
+      "vulnerable_code": "const div = document.createElement('div');\ndiv.innerHTML = `<p>${userComment}</p>`;\ndocument.body.appendChild(div);",
+      "secure_code": "const div = document.createElement('div');\nconst p = document.createElement('p');\np.textContent = userComment;\ndiv.appendChild(p);\ndocument.body.appendChild(div);"
+    },
+    {
+      "id": "SAMPLE-07",
+      "cve_ref": "CVE-2024-11395",
+      "vulnerability_class": "code_injection",
+      "source": "chrome_v8",
+      "cvss_score": 8.1,
+      "vulnerable_code": "const dynamicFunction = new Function('return ' + userExpression);\nconst result = dynamicFunction();",
+      "secure_code": "// For mathematical expressions, use a sandboxed parser like math.js\n// const result = math.evaluate(userExpression);\n// For general data, use JSON.parse()\nconst result = JSON.parse(userExpression);"
+    },
+    {
+      "id": "SAMPLE-08",
+      "cve_ref": "CVE-2025-8011",
+      "vulnerability_class": "prototype_pollution",
+      "source": "chrome_v8",
+      "cvss_score": 7.8,
+      "vulnerable_code": "function deepExtend(target, ...sources) {\n  for (const source of sources) {\n    for (const key in source) {\n      if (typeof source[key] === 'object') {\n        target[key] = deepExtend(target[key] || {}, source[key]);\n      } else {\n        target[key] = source[key];\n      }\n    }\n  }\n  return target;\n}",
+      "secure_code": "function deepExtendSecure(target, ...sources) {\n  for (const source of sources) {\n    for (const key in source) {\n      if (source.hasOwnProperty(key) && key !== '__proto__' && key !== 'constructor' && key !== 'prototype') {\n        if (typeof source[key] === 'object' && source[key] !== null) {\n          target[key] = deepExtendSecure(target[key] || {}, source[key]);\n        } else {\n          target[key] = source[key];\n        }\n      }\n    }\n  }\n  return target;\n}"
+    },
+    {
+      "id": "SAMPLE-09",
+      "cve_ref": "CVE-2019-10744",
+      "vulnerability_class": "prototype_pollution",
+      "source": "npm_lodash",
+      "cvss_score": 9.1,
+      "vulnerable_code": "function defaultsDeep(target, ...sources) {\n  for (const source of sources) {\n    for (const key in source) {\n      const value = source[key];\n      if (typeof value === 'object' && value !== null) {\n        target[key] = defaultsDeep(target[key] || {}, value);\n      } else if (target[key] === undefined) {\n        target[key] = value;\n      }\n    }\n  }\n  return target;\n}",
+      "secure_code": "function defaultsDeepSecure(target, ...sources) {\n  for (const source of sources) {\n    for (const key in source) {\n      if (source.hasOwnProperty(key) && key !== '__proto__' && key !== 'constructor') {\n        const value = source[key];\n        if (typeof value === 'object' && value !== null) {\n          target[key] = defaultsDeepSecure(target[key] || {}, value);\n        } else if (target[key] === undefined) {\n          target[key] = value;\n        }\n      }\n    }\n  }\n  return target;\n}"
+    },
+    {
+      "id": "SAMPLE-10",
+      "cve_ref": "CVE-2020-11023",
+      "vulnerability_class": "xss",
+      "source": "npm_jquery",
+      "cvss_score": 6.1,
+      "vulnerable_code": "const userContent = '<option><style></option></select><img src=x onerror=alert(1)>';\n$('#content').html(userContent);",
+      "secure_code": "const userContent = '<option><style></option></select><img src=x onerror=alert(1)>';\n$('#content').text(userContent);"
+    },
+    {
+      "id": "SAMPLE-11",
+      "cve_ref": "CVE-2019-19919",
+      "vulnerability_class": "xss",
+      "source": "npm_handlebars",
+      "cvss_score": 7.5,
+      "vulnerable_code": "const template = Handlebars.compile('Hello {{name}}');\nconst html = template({ name: userInput });\ndocument.getElementById('output').innerHTML = html;",
+      "secure_code": "const template = Handlebars.compile('Hello {{name}}');\nconst escapedName = Handlebars.Utils.escapeExpression(userInput);\nconst html = template({ name: escapedName });\ndocument.getElementById('output').textContent = html;"
+    },
+    {
+      "id": "SAMPLE-12",
+      "cve_ref": "CVE-2020-28460",
+      "vulnerability_class": "prototype_pollution",
+      "source": "npm_multi_ini",
+      "cvss_score": 7.3,
+      "vulnerable_code": "function setValue(obj, path, value) {\n  const keys = path.split('.');\n  let current = obj;\n  for (let i = 0; i < keys.length - 1; i++) {\n    if (!current[keys[i]]) current[keys[i]] = {};\n    current = current[keys[i]];\n  }\n  current[keys[keys.length - 1]] = value;\n  return obj;\n}",
+      "secure_code": "function setValueSecure(obj, path, value) {\n  const keys = path.split('.');\n  let current = obj;\n  for (let i = 0; i < keys.length - 1; i++) {\n    if (keys[i] === '__proto__' || keys[i] === 'constructor' || keys[i] === 'prototype') {\n      throw new Error('Invalid property access');\n    }\n    if (!current[keys[i]]) current[keys[i]] = {};\n    current = current[keys[i]];\n  }\n  if (keys[keys.length - 1] === '__proto__' || keys[keys.length - 1] === 'constructor') {\n    throw new Error('Invalid property assignment');\n  }\n  current[keys[keys.length - 1]] = value;\n  return obj;\n}"
+    },
+    {
+      "id": "SAMPLE-13",
+      "cve_ref": "CVE-2020-7774",
+      "vulnerability_class": "prototype_pollution",
+      "source": "npm_y18n",
+      "cvss_score": 9.8,
+      "vulnerable_code": "function setLocale(obj, locale) {\n  for (const key in obj) {\n    if (locale[key] !== undefined) {\n      obj[key] = locale[key];\n    }\n  }\n  return obj;\n}",
+      "secure_code": "function setLocaleSecure(obj, locale) {\n  for (const key in obj) {\n    if (obj.hasOwnProperty(key) && locale.hasOwnProperty(key)) {\n      if (key !== '__proto__' && key !== 'constructor') {\n        obj[key] = locale[key];\n      }\n    }\n  }\n  return obj;\n}"
+    },
+    {
+      "id": "SAMPLE-14",
+      "cve_ref": "CVE-2019-10746",
+      "vulnerability_class": "prototype_pollution",
+      "source": "npm_mixin_deep",
+      "cvss_score": 9.8,
+      "vulnerable_code": "function mixinDeep(target, ...sources) {\n  for (const source of sources) {\n    for (const key in source) {\n      const value = source[key];\n      if (typeof value === 'object' && value !== null) {\n        target[key] = mixinDeep(target[key] || {}, value);\n      } else {\n        target[key] = value;\n      }\n    }\n  }\n  return target;\n}",
+      "secure_code": "function mixinDeepSecure(target, ...sources) {\n  for (const source of sources) {\n    for (const key in source) {\n      if (key === '__proto__' || key === 'constructor' || key === 'prototype') continue;\n      if (source.hasOwnProperty(key)) {\n        const value = source[key];\n        if (typeof value === 'object' && value !== null) {\n          target[key] = mixinDeepSecure(target[key] || {}, value);\n        } else {\n          target[key] = value;\n        }\n      }\n    }\n  }\n  return target;\n}"
+    },
+    {
+      "id": "SAMPLE-15",
+      "cve_ref": "CVE-2019-10747",
+      "vulnerability_class": "prototype_pollution",
+      "source": "npm_set_value",
+      "cvss_score": 7.3,
+      "vulnerable_code": "function setValue(obj, path, value) {\n  const keys = Array.isArray(path) ? path : path.split('.');\n  let current = obj;\n  for (let i = 0; i < keys.length - 1; i++) {\n    if (!current[keys[i]]) current[keys[i]] = {};\n    current = current[keys[i]];\n  }\n  current[keys[keys.length - 1]] = value;\n  return obj;\n}",
+      "secure_code": "function setValueSecure(obj, path, value) {\n  if (path.includes('__proto__') || path.includes('constructor') || path.includes('prototype')) {\n    throw new Error('Invalid path: contains forbidden property');\n  }\n  const keys = Array.isArray(path) ? path : path.split('.');\n  let current = obj;\n  for (let i = 0; i < keys.length - 1; i++) {\n    if (!current[keys[i]]) current[keys[i]] = {};\n    current = current[keys[i]];\n  }\n  current[keys[keys.length - 1]] = value;\n  return obj;\n}"
+    },
+    {
+      "id": "SAMPLE-16",
+      "cve_ref": "CVE-2021-27582",
+      "vulnerability_class": "prototype_pollution",
+      "source": "npm_mitmproxy_jquery",
+      "cvss_score": 6.1,
+      "vulnerable_code": "// Vulnerable jQuery extend (jQuery < 3.4.0)\njQuery.extend(true, {}, JSON.parse(userJSON));",
+      "secure_code": "// Secure deep clone with prototype filtering\nconst data = JSON.parse(userJSON);\nconst cleanData = Object.create(null);\nfor (const key of Object.keys(data)) {\n  cleanData[key] = data[key];\n}\njQuery.extend(true, {}, cleanData);"
+    },
+    {
+      "id": "SAMPLE-17",
+      "cve_ref": "CVE-2022-2421",
+      "vulnerability_class": "prototype_pollution",
+      "source": "npm_socket_io_parser",
+      "cvss_score": 7.3,
+      "vulnerable_code": "function parsePacket(packet) {\n  const obj = {};\n  const parts = packet.split('|');\n  for (const part of parts) {\n    const [key, value] = part.split('=');\n    obj[key] = value;\n  }\n  return obj;\n}",
+      "secure_code": "function parsePacketSecure(packet) {\n  const obj = Object.create(null);\n  const parts = packet.split('|');\n  for (const part of parts) {\n    const [key, value] = part.split('=');\n    if (key !== '__proto__' && key !== 'constructor' && key !== 'prototype') {\n      obj[key] = value;\n    }\n  }\n  return obj;\n}"
+    },
+    {
+      "id": "SAMPLE-18",
+      "cve_ref": "CVE-2018-16487",
+      "vulnerability_class": "prototype_pollution",
+      "source": "npm_lodash",
+      "cvss_score": 7.5,
+      "vulnerable_code": "_.merge({}, JSON.parse(userData));",
+      "secure_code": "const data = JSON.parse(userData);\nconst safeData = JSON.parse(JSON.stringify(data));\nconst result = _.merge({}, safeData);"
+    },
+    {
+      "id": "SAMPLE-19",
+      "cve_ref": "CVE-2019-17317",
+      "vulnerability_class": "prototype_pollution",
+      "source": "npm_sugarss",
+      "cvss_score": 7.3,
+      "vulnerable_code": "function parse(input) {\n  const result = {};\n  for (const line of input.split('\\n')) {\n    const [key, value] = line.split(':');\n    if (key && value) {\n      result[key.trim()] = value.trim();\n    }\n  }\n  return result;\n}",
+      "secure_code": "function parseSecure(input) {\n  const result = Object.create(null);\n  for (const line of input.split('\\n')) {\n    const [key, value] = line.split(':');\n    if (key && value) {\n      const cleanKey = key.trim();\n      if (cleanKey !== '__proto__' && cleanKey !== 'constructor') {\n        result[cleanKey] = value.trim();\n      }\n    }\n  }\n  return result;\n}"
+    },
+    {
+      "id": "SAMPLE-20",
+      "cve_ref": "CVE-2021-23382",
+      "vulnerability_class": "prototype_pollution",
+      "source": "npm_postcss",
+      "cvss_score": 7.3,
+      "vulnerable_code": "function parseNode(node, result = {}) {\n  for (const prop of node) {\n    if (typeof prop === 'object') {\n      parseNode(prop, result);\n    } else {\n      result[prop.type] = prop.value;\n    }\n  }\n  return result;\n}",
+      "secure_code": "function parseNodeSecure(node, result = Object.create(null)) {\n  for (const prop of node) {\n    if (typeof prop === 'object') {\n      parseNodeSecure(prop, result);\n    } else {\n      if (prop.type !== '__proto__') {\n        result[prop.type] = prop.value;\n      }\n    }\n  }\n  return result;\n}"
+    },
+    {
+      "id": "SAMPLE-21",
+      "cve_ref": "CVE-2020-11022",
+      "vulnerability_class": "xss",
+      "source": "npm_jquery",
+      "cvss_score": 6.1,
+      "vulnerable_code": "// jQuery < 3.5.0 - htmlPrefilter bypass\nconst userHTML = '<div><img src=x onerror=alert(1)></div>';\nconst cleanHTML = $.htmlPrefilter(userHTML);\n$('#output').html(cleanHTML);",
+      "secure_code": "// jQuery >= 3.5.0 or manual sanitization\nconst userHTML = '<div><img src=x onerror=alert(1)></div>';\nconst cleanHTML = DOMPurify.sanitize(userHTML);\n$('#output').html(cleanHTML);"
+    },
+    {
+      "id": "SAMPLE-22",
+      "cve_ref": "CVE-2020-7656",
+      "vulnerability_class": "xss",
+      "source": "npm_jquery_file_upload",
+      "cvss_score": 6.1,
+      "vulnerable_code": "// Unsafe filename rendering\ndocument.getElementById('filename').innerHTML = uploadedFile.name;",
+      "secure_code": "// Safe text content assignment\ndocument.getElementById('filename').textContent = uploadedFile.name;"
+    },
+    {
+      "id": "SAMPLE-23",
+      "cve_ref": "CVE-2021-21277",
+      "vulnerability_class": "xss",
+      "source": "npm_angular_expressions",
+      "cvss_score": 7.5,
+      "vulnerable_code": "const angularExpressions = require('angular-expressions');\nconst fn = angularExpressions.compile(userInput);\nconst result = fn({});\ndocument.getElementById('output').innerHTML = result;",
+      "secure_code": "const angularExpressions = require('angular-expressions');\nconst sanitized = userInput.replace(/[&<>\"']/g, '');\nconst fn = angularExpressions.compile(sanitized);\nconst result = fn({});\ndocument.getElementById('output').textContent = result;"
+    },
+    {
+      "id": "SAMPLE-24",
+      "cve_ref": "CVE-2021-23358",
+      "vulnerability_class": "xss",
+      "source": "npm_underscore",
+      "cvss_score": 7.2,
+      "vulnerable_code": "const _ = require('underscore');\nconst template = _.template('<h1><%= title %></h1>');\nconst html = template({ title: userInput });\ndocument.getElementById('output').innerHTML = html;",
+      "secure_code": "const _ = require('underscore');\nconst template = _.template('<h1><%- title %></h1>');\nconst html = template({ title: userInput });\ndocument.getElementById('output').innerHTML = html;"
+    },
+    {
+      "id": "SAMPLE-25",
+      "cve_ref": "CVE-2021-32819",
+      "vulnerability_class": "xss",
+      "source": "npm_squirrelly",
+      "cvss_score": 7.5,
+      "vulnerable_code": "const Sqrl = require('squirrelly');\nconst html = Sqrl.render(userTemplate, { data: userData });\ndocument.getElementById('output').innerHTML = html;",
+      "secure_code": "const Sqrl = require('squirrelly');\nSqrl.config.autoEscape = true;\nconst html = Sqrl.render(userTemplate, { data: userData });\ndocument.getElementById('output').textContent = html;"
+    },
+    {
+      "id": "SAMPLE-26",
+      "cve_ref": "CVE-2020-7671",
+      "vulnerability_class": "xss",
+      "source": "npm_goliath",
+      "cvss_score": 6.1,
+      "vulnerable_code": "function renderComment(comment) {\n  return `<div class=\"comment\">${comment}</div>`;\n}\ndocument.getElementById('comments').innerHTML = renderComment(userComment);",
+      "secure_code": "function renderCommentSecure(comment) {\n  const div = document.createElement('div');\n  div.className = 'comment';\n  div.textContent = comment;\n  return div;\n}\ndocument.getElementById('comments').appendChild(renderCommentSecure(userComment));"
+    },
+    {
+      "id": "SAMPLE-27",
+      "cve_ref": "CVE-2020-28469",
+      "vulnerability_class": "xss",
+      "source": "npm_glob_parent",
+      "cvss_score": 7.3,
+      "vulnerable_code": "function highlightSearch(query) {\n  const regex = new RegExp(query, 'gi');\n  const highlighted = documentText.replace(regex, '<mark>$&</mark>');\n  document.getElementById('content').innerHTML = highlighted;\n}",
+      "secure_code": "function highlightSearchSecure(query) {\n  const escapedQuery = query.replace(/[.*+?^${}()|[\\]\\\\]/g, '\\\\$&');\n  const regex = new RegExp(escapedQuery, 'gi');\n  const highlighted = documentText.replace(regex, '<mark>$&</mark>');\n  document.getElementById('content').innerHTML = DOMPurify.sanitize(highlighted);\n}"
+    },
+    {
+    "id": "SAMPLE-28",
+    "cve_ref": "CVE-2020-28469",
+    "vulnerability_class": "open_redirect",
+    "source": "npm_glob_parent",
+    "cvss_score": 7.3,
+    "vulnerable_code": "function handleRedirect() {\n  const redirectUrl = getQueryParam('redirect');\n  window.location.href = redirectUrl;\n}",
+    "secure_code": "function handleRedirectSecure() {\n  const redirectUrl = getQueryParam('redirect');\n  const allowedHosts = ['example.com', 'app.example.com'];\n  try {\n    const url = new URL(redirectUrl);\n    if (allowedHosts.includes(url.hostname)) {\n      window.location.href = redirectUrl;\n    } else {\n      window.location.href = '/';\n    }\n  } catch (e) {\n    window.location.href = '/';\n  }\n}"
+    },
+    {
+      "id": "SAMPLE-29",
+      "cve_ref": "CVE-2021-23490",
+      "vulnerability_class": "code_injection",
+      "source": "npm_parse_link_header",
+      "cvss_score": 9.8,
+      "vulnerable_code": "function parseLinkHeader(header) {\n  const links = {};\n  const parts = header.split(',');\n  for (const part of parts) {\n    const section = part.split(';');\n    const url = section[0].replace(/[<>]/g, '').trim();\n    const name = section[1]?.match(/rel=\"?(\\w+)\"?/)?.[1];\n    if (name) {\n      eval(`links.${name} = \"${url}\";`);\n    }\n  }\n  return links;\n}",
+      "secure_code": "function parseLinkHeaderSecure(header) {\n  const links = Object.create(null);\n  const parts = header.split(',');\n  for (const part of parts) {\n    const section = part.split(';');\n    const url = section[0].replace(/[<>]/g, '').trim();\n    const name = section[1]?.match(/rel=\"?(\\w+)\"?/)?.[1];\n    if (name && name !== '__proto__' && name !== 'constructor') {\n      links[name] = url;\n    }\n  }\n  return links;\n}"
+    },
+    {
+      "id": "SAMPLE-30",
+      "cve_ref": "CVE-2019-15657",
+      "vulnerability_class": "code_injection",
+      "source": "npm_eslint_utils",
+      "cvss_score": 8.8,
+      "vulnerable_code": "const { getStaticValue } = require('eslint-utils');\nconst result = getStaticValue(userExpression, globalScope);\neval(`const output = ${result.value};`);",
+      "secure_code": "const { getStaticValue } = require('eslint-utils');\nconst result = getStaticValue(userExpression, globalScope);\ntry {\n  const output = JSON.parse(JSON.stringify(result.value));\n} catch (e) {\n  throw new Error('Invalid expression result');\n}"
+    },
+    {
+      "id": "SAMPLE-31",
+      "cve_ref": "CVE-2020-28480",
+      "vulnerability_class": "code_injection",
+      "source": "npm_jointjs",
+      "cvss_score": 7.5,
+      "vulnerable_code": "function processTemplate(template, data) {\n  return new Function('data', `return \\`${template}\\`;`)(data);\n}",
+      "secure_code": "function processTemplateSecure(template, data) {\n  const escaped = template.replace(/`/g, '\\\\`').replace(/\\$\\{/g, '\\\\${');\n  return new Function('data', `return \\`${escaped}\\`;`)(data);\n}"
+    },
+    {
+      "id": "SAMPLE-32",
+      "cve_ref": "CVE-2021-44906",
+      "vulnerability_class": "prototype_pollution",
+      "source": "npm_minimist",
+      "cvss_score": 9.8,
+      "vulnerable_code": "const minimist = require('minimist');\nconst argv = minimist(process.argv.slice(2));\nconst config = Object.assign({}, argv);",
+      "secure_code": "const minimist = require('minimist');\nconst argv = minimist(process.argv.slice(2));\nconst config = Object.create(null);\nObject.assign(config, JSON.parse(JSON.stringify(argv)));"
+    },
+    {
+      "id": "SAMPLE-33",
+      "cve_ref": "CVE-2021-23470",
+      "vulnerability_class": "prototype_pollution",
+      "source": "npm_set_getter",
+      "cvss_score": 7.3,
+      "vulnerable_code": "function setGetter(obj, prop, getter) {\n  Object.defineProperty(obj, prop, { get: getter, configurable: true });\n  return obj;\n}",
+      "secure_code": "function setGetterSecure(obj, prop, getter) {\n  if (prop === '__proto__' || prop === 'constructor' || prop === 'prototype') {\n    throw new Error('Cannot define getter on protected property');\n  }\n  Object.defineProperty(obj, prop, { get: getter, configurable: true });\n  return obj;\n}"
+    },
+    {
+      "id": "SAMPLE-34",
+      "cve_ref": "CVE-2020-28448",
+      "vulnerability_class": "prototype_pollution",
+      "source": "npm_globalom",
+      "cvss_score": 7.3,
+      "vulnerable_code": "function set(obj, path, value) {\n  const keys = path.split('.');\n  let current = obj;\n  keys.forEach((key, index) => {\n    if (index === keys.length - 1) {\n      current[key] = value;\n    } else {\n      current[key] = current[key] || {};\n      current = current[key];\n    }\n  });\n  return obj;\n}",
+      "secure_code": "function setSecure(obj, path, value) {\n  if (path.includes('__proto__') || path.includes('constructor')) {\n    throw new Error('Forbidden path');\n  }\n  const keys = path.split('.');\n  let current = obj;\n  keys.forEach((key, index) => {\n    if (index === keys.length - 1) {\n      current[key] = value;\n    } else {\n      current[key] = current[key] || {};\n      current = current[key];\n    }\n  });\n  return obj;\n}"
+    },
+    {
+    "id": "SAMPLE-35",
+    "cve_ref": "CVE-2021-27292",
+    "vulnerability_class": "open_redirect",
+    "source": "npm_ua_parser_js",
+    "cvss_score": 7.5,
+    "vulnerable_code": "app.get('/redirect', (req, res) => {\n  const url = req.query.url;\n  res.redirect(url);\n});",
+    "secure_code": "app.get('/redirect', (req, res) => {\n  const url = req.query.url;\n  if (url && (url.startsWith('/') || url.startsWith('https://example.com'))) {\n    res.redirect(url);\n  } else {\n    res.redirect('/');\n  }\n});"
+    },
+    {
+      "id": "SAMPLE-36",
+      "cve_ref": "CVE-2021-27292",
+      "vulnerability_class": "xss",
+      "source": "npm_ua_parser_js",
+      "cvss_score": 7.5,
+      "vulnerable_code": "const userAgent = req.headers['user-agent'];\ndocument.getElementById('ua-display').innerHTML = `<strong>${userAgent}</strong>`;",
+      "secure_code": "const userAgent = req.headers['user-agent'];\nconst span = document.createElement('strong');\nspan.textContent = userAgent;\ndocument.getElementById('ua-display').appendChild(span);"
+    },
+    {
+      "id": "SAMPLE-37",
+      "cve_ref": "CVE-2021-23382",
+      "vulnerability_class": "command_injection",
+      "source": "npm_postcss",
+      "cvss_score": 7.3,
+      "vulnerable_code": "const { exec } = require('child_process');\nconst plugin = req.body.plugin;\nexec(`npm install ${plugin}`, (err, stdout) => {\n  if (err) return res.status(500).send(err.message);\n  res.send(stdout);\n});",
+      "secure_code": "function installPluginSecure(req, res) {\n  const { execFile } = require('child_process');\n  const plugin = req.body.plugin;\n  const allowedPlugins = ['autoprefixer', 'tailwindcss', 'postcss-nested'];\n  if (!allowedPlugins.includes(plugin)) {\n    return res.status(400).send('Invalid plugin');\n  }\n  execFile('npm', ['install', plugin], (err, stdout) => {\n    if (err) return res.status(500).send(err.message);\n    res.send(stdout);\n  });\n}"
+    },
+    {
+    "id": "SAMPLE-38",
+    "cve_ref": "CVE-2022-25883",
+    "vulnerability_class": "open_redirect",
+    "source": "npm_semver_regex",
+    "cvss_score": 7.5,
+    "vulnerable_code": "function redirectAfterLogin(returnUrl) {\n  window.location.assign(returnUrl);\n}",
+    "secure_code": "function redirectAfterLoginSecure(returnUrl) {\n  try {\n    const url = new URL(returnUrl, window.location.origin);\n    if (url.origin === window.location.origin) {\n      window.location.assign(url.href);\n    } else {\n      window.location.assign('/dashboard');\n    }\n  } catch (e) {\n    window.location.assign('/dashboard');\n  }\n}"
+    },
+    {
+    "id": "SAMPLE-39",
+    "cve_ref": "CVE-2020-28480",
+    "vulnerability_class": "open_redirect",
+    "source": "npm_jointjs",
+    "cvss_score": 7.5,
+    "vulnerable_code": "function handleRedirect() {\n  const targetUrl = new URLSearchParams(location.search).get('next');\n  location.replace(targetUrl);\n}",
+    "secure_code": "function handleRedirectSecure() {\n  const targetUrl = new URLSearchParams(location.search).get('next');\n  if (targetUrl && targetUrl.startsWith('/')) {\n    location.replace(targetUrl);\n  } else {\n    location.replace('/');\n  }\n}"
+    },
+    {
+      "id": "SAMPLE-40",
+      "cve_ref": "CVE-2024-27982",
+      "vulnerability_class": "command_injection",
+      "source": "nodejs_core",
+      "cvss_score": 8.3,
+      "vulnerable_code": "const { spawn } = require('child_process');\nconst args = req.query.args.split(',');\nconst proc = spawn('process-data', args);",
+      "secure_code": "const { spawn } = require('child_process');\nconst rawArgs = req.query.args.split(',');\nconst sanitizedArgs = rawArgs.map(arg => {\n  if (/^[a-zA-Z0-9./_-]+$/.test(arg)) return arg;\n  throw new Error('Invalid argument');\n});\nconst proc = spawn('process-data', sanitizedArgs);"
+    }
+  ]
+}

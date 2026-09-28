@@ -1,0 +1,18 @@
+{
+  "name": "js-security-experiment",
+  "version": "1.0.0",
+  "description": "AST vs Sequence-based JavaScript vulnerability detection",
+  "dependencies": {
+    "espree": "^9.6.1",
+    "estraverse": "^5.3.0",
+    "expree": "^2.1.0"
+  },
+  "main": "ast_detector.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "type": "commonjs"
+}
